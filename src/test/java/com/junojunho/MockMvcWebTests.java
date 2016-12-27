@@ -30,6 +30,7 @@ public class MockMvcWebTests {
     @Autowired
     private WebApplicationContext webContext;
     private MockMvc mockMvc;
+
     @Before
     public void setupMockMvc(){
         mockMvc = MockMvcBuilders
@@ -46,11 +47,11 @@ public class MockMvcWebTests {
     }
 
     @Test
-    @WithUserDetails("juno")
+    @WithUserDetails("junojunho")
     public void homePage_authenticatedUser() throws Exception{
         Reader reader = new Reader();
-        reader.setUsername("juno");
-        reader.setFullname("JunoJunho");
+        reader.setUsername("junojunho");
+        reader.setFullname("Junho Kim");
         reader.setPassword("1234");
 
         mockMvc.perform(get("/"))
@@ -59,45 +60,5 @@ public class MockMvcWebTests {
                 .andExpect(model().attribute("reader", samePropertyValuesAs(reader)))
                 .andExpect(model().attribute("books",hasSize(0)))
                 .andExpect(model().attribute("amazonID", "habuma-20"));
-    }
-
-    @Test
-    public void homePage() throws Exception{
-        mockMvc.perform(get("/"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("readingList"))
-                .andExpect(model().attributeExists("books"))
-                .andExpect(model().attribute("books", is(empty())));
-    }
-
-    @Test
-    public void postBook() throws Exception{
-        mockMvc.perform(post("/")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("title", "BOOK TITLE")
-                .param("author", "BOOK AUTHOR")
-                .param("isbn", "1234567890")
-                .param("description", "DESCRIPTION"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(header().string("Location", "/"));
-
-        Book expectedBook = new Book();
-        expectedBook.setId(1L);
-        expectedBook.setTitle("BOOK TITLE");
-        expectedBook.setAuthor("BOOK AUTHOR");
-        expectedBook.setIsbn("1234567890");
-        expectedBook.setDescription("DESCRIPTION");
-        Reader reader = new Reader();
-        reader.setUsername("juno");
-        reader.setFullname("JunoJunho");
-        reader.setPassword("1234");
-        expectedBook.setReader(reader);
-
-        mockMvc.perform(get("/"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("readingList"))
-                .andExpect(model().attributeExists("books"))
-                .andExpect(model().attribute("books", hasSize(1)))
-                .andExpect(model().attribute("books", contains(samePropertyValuesAs(expectedBook))));
     }
 }
