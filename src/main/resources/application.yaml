@@ -1,0 +1,39 @@
+server:
+  port: 8000
+
+amazon:
+  associatedId: habuma-20
+
+info:
+  contactEmail: support@myreadinglist.com
+  contactPhone: 1-888-555-1971
+
+endpoints:
+  shutdown:
+    id: kill
+  metrics:
+    enabled: true
+
+management:
+  context-path: /mgmt
+
+---
+spring:
+  profiles: production
+  datasource:
+    url: jdbc:mysql://localhost:3306/readinglist
+    username: root
+    password: selabselab1!
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+
+#
+#  amazon.associatedId = habuma-20
+#  spring.profiles.active  = production
+#  info.contactEmail = support@myreadinglist.com
+#  info.contactPhone = 1-888-555-1971
+#  endpoints.shutdown.id = kill
+#  endpoints.metrics.enabled=true
+#  management.context-path=/mgmt

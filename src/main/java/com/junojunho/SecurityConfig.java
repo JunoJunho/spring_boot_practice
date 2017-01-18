@@ -24,7 +24,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity http) throws Exception{
         http.authorizeRequests()
                 .antMatchers("/").access("hasRole('READER')")
-                .antMatchers("/**").permitAll()
+                .antMatchers("/mgmt/").access("hasRole('ADMIN')")
+                .antMatchers("/").permitAll()
                 .and()
                 .formLogin()
                 .loginPage("/login")
@@ -32,7 +33,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     }
 
     protected void configure(AuthenticationManagerBuilder auth) throws Exception{
-        auth.userDetailsService(userDetailsService());
+        auth.userDetailsService(new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
+                UserDetails user = readerRepository.findOne(username);
+                if(user != null){
+                    return user;
+                }
+                throw new UsernameNotFoundException("User '" + username + "' not found.");
+            }
+        })
+        .and()
+        .inMemoryAuthentication()
+        .withUser("admin").password("s3cr3t")
+        .roles("ADMIN", "READER");
     }
 
     @Bean

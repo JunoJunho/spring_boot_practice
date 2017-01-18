@@ -1,6 +1,8 @@
 package com.junojunho;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,12 +17,18 @@ public class ReadingListController {
 
     private ReadingListRepository readingListRepository;
     private AmazonProperties amazonProperties;
+    private CounterService counterService;
+    private GaugeService gaugeService;
 
     @Autowired
     public ReadingListController(ReadingListRepository readingListRepository,
-                                 AmazonProperties amazonProperties){
+                                 AmazonProperties amazonProperties,
+                                 CounterService counterService,
+                                 GaugeService gaugeService){
         this.readingListRepository = readingListRepository;
         this.amazonProperties = amazonProperties;
+        this.gaugeService = gaugeService;
+        this.counterService = counterService;
     }
 
 
@@ -39,6 +47,8 @@ public class ReadingListController {
     public String addToReadingList(Reader reader, Book book){
         book.setReader(reader);
         readingListRepository.save(book);
+        counterService.increment("books.saved");
+        gaugeService.submit("books.last.saved", System.currentTimeMillis());
         return "redirect:/";
     }
 }
